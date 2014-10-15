@@ -1,15 +1,16 @@
 """
-ka design automation tools - 
-super rough, but this is a set of functions, documented at the bottom, 
-which let you get the text/names of topics/subjects/domains for parts of 
+ka design automation tools -
+super rough, but this is a set of functions, documented at the bottom,
+which let you get the text/names of topics/subjects/domains for parts of
 our topic tree.
 
 you need to get the topic tree, which you can do by running
-    
+
     curl -o ~/topictree.json http://www.khanacademy.org/api/v1/topictree
-    
+
 good luck!
 """
+from __future__ import division
 
 size(2048, 1536)
 background(None)
@@ -26,46 +27,46 @@ domain_slugs = [t['slug'] for t in domains]
 domain_list = [(t['title'], t['slug']) for t in domains]
 
 def subjects_for_domain(slug):
-    subjects = [t['children'] for t in domains 
+    subjects = [t['children'] for t in domains
                     if t['domain_slug'] == slug]
     if subjects:
         return subjects[0]
 
 def topic_color_for(slug):
-    colors = {u'coach-res': '#5cd0b3', 
-    u'new-and-noteworthy': '#5cd0b3', 
-    u'computing': '#83c167', 
-    u'science': '#c55f73', 
-    u'talks-and-interviews': '#5cd0b3', 
-    u'humanities': '#fc6255', 
-    u'partner-content': '#5cd0b3', 
-    u'economics-finance-domain': '#f0ac5f', 
-    u'test-prep': '#9a72ac', 
+    colors = {u'coach-res': '#5cd0b3',
+    u'new-and-noteworthy': '#5cd0b3',
+    u'computing': '#83c167',
+    u'science': '#c55f73',
+    u'talks-and-interviews': '#5cd0b3',
+    u'humanities': '#fc6255',
+    u'partner-content': '#5cd0b3',
+    u'economics-finance-domain': '#f0ac5f',
+    u'test-prep': '#9a72ac',
     u'math': '#4fbad4'}
     return colors.get(slug, '#5cd0b3')
 
 def subject_color_for(slug):
     colors = {
-        u'computing': '#76af5c', 
-        u'science': '#9c4959', 
-        u'humanities': '#e5594b', 
-        # u'partner-content': '#48a78e', 
-        u'partner-content': '#54c0a6', 
-        u'economics-finance-domain': '#e0a057', 
-        u'test-prep': '#7d5e8d', 
+        u'computing': '#76af5c',
+        u'science': '#9c4959',
+        u'humanities': '#e5594b',
+        # u'partner-content': '#48a78e',
+        u'partner-content': '#54c0a6',
+        u'economics-finance-domain': '#e0a057',
+        u'test-prep': '#7d5e8d',
         u'math': '#45a7be'
     }
     return colors.get(slug, '#4c6678')
 
 def domain_color_for(slug):
     colors = {
-        u'computing': '#689b51', 
-        u'science': '#93414e', 
-        u'humanities': '#ce4f43', 
-        # u'partner-content': '#48a78e', 
-        u'partner-content': '#48a78e', 
-        u'economics-finance-domain': '#c68c45', 
-        u'test-prep': '#634071', 
+        u'computing': '#689b51',
+        u'science': '#93414e',
+        u'humanities': '#ce4f43',
+        # u'partner-content': '#48a78e',
+        u'partner-content': '#48a78e',
+        u'economics-finance-domain': '#c68c45',
+        u'test-prep': '#634071',
         u'math': '#1b7489'
     }
     return colors.get(slug, '#304352')
@@ -83,7 +84,7 @@ def stripe_domain(domain):
         align(LEFT)
         font("Proxima Nova Semibold", font_size)
         bgcolor.v += tint_quantity
-        
+
         fill(bgcolor)
         rect(0,box_size*i, 1024, box_size)
         fill(1)
@@ -99,9 +100,9 @@ def color_domains():
 
 def get_topics(**kwargs):
     """ gets a list of topics in a subject
-    
+
     **kwargs
-    
+
     - domain: restricts chosen subject to domain
     - subject: returns topics within a given subject
     """
@@ -109,14 +110,14 @@ def get_topics(**kwargs):
     domain_slugs = [t['slug'] for t in domains]
     domain_slug = kwargs.get('domain', random.choice(domain_slugs))
     # domain_title = TODODODODODODO
-    
+
     subject_slugs = [s['slug'] for s in subjects_for_domain(domain_slug)]
     subject_slug = kwargs.get('subject', random.choice(subject_slugs))
     # subject_title = TODODODODODODODO
-    
+
     # TODO: fix this to validate that args actually exist, only random
     # choices are guaranteed to exist
-    subject = filter(lambda x: x['slug'] == subject_slug, 
+    subject = filter(lambda x: x['slug'] == subject_slug,
         subjects_for_domain(domain_slug))
     # print domain_slug
     # print subject_slug
@@ -146,7 +147,7 @@ import json
 #     for tut in t['children']:
 #         print "  " +  "--".join(["( )" for c in tut['children']]) + "  " + tut['title']
 
-## print the id for each topic in math (this went nowhere) 
+## print the id for each topic in math (this went nowhere)
 # print get_topics(domain='math', subject='cc-seventh-grade-math')[0].keys()
 # for s in get_topics(domain='math', subject='cc-seventh-grade-math'):
 #     print s.get('id')
@@ -188,7 +189,7 @@ def random_domain_color(slug, **kwargs):
     colors = [color(subject_color_for(slug)) for x in range(subject_count)]
     for i, c in enumerate(colors):
         c.v += i * tint_quantity
-    
+
     random.shuffle(colors)
     return colors
 
@@ -228,9 +229,9 @@ def horizontal_grid(**kwargs):
         box_height = 0
         default_width = kwargs.get('default_width', 150)
         subject_area = 1024
-        
+
         with translate(x_pos, y_pos):
-            w, h = subject_box(domain_title, subject_color_for(domain), "domain", 
+            w, h = subject_box(domain_title, subject_color_for(domain), "domain",
                                 min_width=None, padding={'right': 80})
             x_pos += w
 
@@ -239,11 +240,11 @@ def horizontal_grid(**kwargs):
             subject_count = len(subjects_for_domain(domain))
             if subject_area - subject_count * default_width > 0:
                 default_width = subject_area / subject_count
-        
+
         for i, s in enumerate(subjects_for_domain(domain)):
             with translate(x_pos, y_pos):
-                w, h = subject_box(s.get('title'), 
-                                    random_domain_color(domain, seed=seed)[i], 
+                w, h = subject_box(s.get('title'),
+                                    random_domain_color(domain, seed=seed)[i],
                                     "subject",
                                     min_width=default_width)
                 x_pos += w
@@ -262,19 +263,19 @@ def progress(x, y, **kwargs):
     INNER_RADIUS = 35
     OUTER_RADIUS = 1.25 * INNER_RADIUS
     STROKE_WIDTH = .04 * INNER_RADIUS * 2
-    
+
     arc(x, y, INNER_RADIUS, range=360, fill=0.95,
         stroke=.7, strokewidth=STROKE_WIDTH)
     arc(x, y, OUTER_RADIUS, range=360, fill=None,
         stroke=.95, strokewidth=STROKE_WIDTH)
-    
+
     prog_pct = kwargs.get('prog', random.uniform(5, 95))
     prog_amount = 360.0 * prog_pct / 100
 
     font("Proxima Nova", "Regular", 18)
     align(CENTER)
     text("%d%%" % (prog_pct), x+3, y+7)
-    
+
     with transform(CENTER), rotate(90):
         arc(x, y, OUTER_RADIUS, range= prog_amount, fill=None,
             stroke=0.6, strokewidth=STROKE_WIDTH)
@@ -282,8 +283,8 @@ def progress(x, y, **kwargs):
 def topic_progress(x,y, **kwargs):
     import random
     import icons
-    
-    
+
+
     stroke_width = 5
     outer_radius = 47
     topic_radius = 35
@@ -299,9 +300,9 @@ def topic_progress(x,y, **kwargs):
                                 '#57c3dc', # mastery 1
                                 '#28aac9', # mastery 2
                                 '#1b7489']] # mastered
-    
+
     # draw grey circle which others overlay atop
-    arc(x, y, outer_radius, range=360, fill=None, stroke='#dedede', strokewidth=stroke_width)    
+    arc(x, y, outer_radius, range=360, fill=None, stroke='#dedede', strokewidth=stroke_width)
     icon_radius = 128
     # image is 128 but we will use it at different size to match inner topic radius
     scaling = topic_radius * 2 / 128.0
@@ -328,9 +329,30 @@ def topic_progress(x,y, **kwargs):
             arc(x, y, outer_radius, range=amount, fill=None, stroke=c, strokewidth=stroke_width)
 
 # get a random topic
-sl = get_topics(domain='math')[0]['slug']
-topic_progress(200, 200, topic=sl, domain='math', image=False)
+# sl = get_topics(domain='math')[0]['slug']
+# topic_progress(200, 200, topic=sl, domain='math', image=False)
 
+
+def statsy():
+    """blah blah blah stats blah"""
+    import math
+    blah = []
+    quux = []
+    for s in subjects_for_domain('math'):
+        for t in get_topics(domain='math', subject=s['slug']):
+            if t.get('children'):
+                for tut in t.get('children'):
+                    if tut.get('children'):
+                        if len(tut['children']) > 8:
+                            print ', '.join([s['title'], t['title'], tut['title'], str(len(tut['children']))])
+                            quux.append(tut['title'])
+                        blah.append(len(tut['children']))
+
+    # print blah
+    print len(blah), "number of tutorials"
+    print len(quux), "number with more than 8 tutorial items"
+    print "%f%%" % (math.ceil(len(quux) / len(blah) * 1000) / 10) , "percent of unruly tutorials"
+    print sum(blah) / len(blah)
 
 # progress(50,50)
 
@@ -346,7 +368,7 @@ def topic_display(**kwargs):
         fill(domain_color_for(domain))
         # the topic heading
         text("%s" % t['title'], 40, heading_y, style="subjecthead")
-        
+
         ancestors = [subject, domain]
         icon = icons.get_icon_for(t['slug'], ancestors)
 
@@ -354,11 +376,11 @@ def topic_display(**kwargs):
             with scale(.25):
                 with clip(oval(0,0,128,128)):
                     image("~/khan/webapp%s" % icon)
-        
+
         fill(.6)
         desc = text(t['description'], 40, heading_y + 30, style="subject", width=600, leading=1)
         heading_y += measure(desc).height + 20
-        
+
         maxes = [heading_y + 70 + (50 * len(c['children'])) for c in t['children']]
         for j, tut in enumerate(t['children']):
             tutorial_x = 40 + j * 280
@@ -367,7 +389,7 @@ def topic_display(**kwargs):
             strokewidth(1)
             stroke(.6)
             line(tutorial_x + 10, heading_y+70 - 10, tutorial_x + 10, heading_y + 70 + 50 * (len(tut['children'])-1))
-            
+
             # tutorial title
             fill(subject_color_for(domain))
             text(tut['title'], tutorial_x, heading_y + 30, style="subject", width=240, height=40)
@@ -378,13 +400,13 @@ def topic_display(**kwargs):
                 # content title
                 oval(tutorial_x, content_y-17, 20, 20)
                 fill(domain_color_for(domain))
-                text(content['title'], tutorial_x + 30, content_y, style="subject", 
+                text(content['title'], tutorial_x + 30, content_y, style="subject",
                     width=220, height=50, leading=1.1)
 
         max_y = max(maxes)
         max_y += 75
 
-## draw a topic tree for a given subject 
+## draw a topic tree for a given subject
 # with translate(100, 0):
 #     topic_display()
 
@@ -395,7 +417,7 @@ def topic_icons(**kwargs):
     domain_slugs = [t['slug'] for t in domains[1:]]
     domain_slug = kwargs.get('domain', random.choice(domain_slugs))
     # domain_title = TODODODODODODO
-    
+
     subject_slugs = [s['slug'] for s in subjects_for_domain(domain_slug)]
     subject_slug = kwargs.get('subject', random.choice(subject_slugs))
     # subject_title = TODODODODODODODO
