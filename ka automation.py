@@ -338,7 +338,11 @@ def statsy():
     import math
     blah = []
     quux = []
+    foo = []
     for s in subjects_for_domain('math'):
+        f = get_topics(domain='math', subject=s['slug'])
+        if f:
+            foo.append(len(f))
         for t in get_topics(domain='math', subject=s['slug']):
             if t.get('children'):
                 for tut in t.get('children'):
@@ -349,11 +353,15 @@ def statsy():
                         blah.append(len(tut['children']))
 
     # print blah
+    print foo
+    print len(foo), "number of topics"
+    print sum(foo) / len(foo), "average number of topics"
     print len(blah), "number of tutorials"
     print len(quux), "number with more than 8 tutorial items"
     print "%f%%" % (math.ceil(len(quux) / len(blah) * 1000) / 10) , "percent of unruly tutorials"
     print sum(blah) / len(blah)
 
+statsy()
 # progress(50,50)
 
 def topic_display(**kwargs):
@@ -397,7 +405,7 @@ def topic_display(**kwargs):
                 fill(.6)
                 content_y = heading_y + 70 + 50 * k
 
-                # content title
+                # content domain_title
                 oval(tutorial_x, content_y-17, 20, 20)
                 fill(domain_color_for(domain))
                 text(content['title'], tutorial_x + 30, content_y, style="subject",
