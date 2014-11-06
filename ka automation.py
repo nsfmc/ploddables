@@ -11,6 +11,7 @@ you need to get the topic tree, which you can do by running
 good luck!
 """
 from __future__ import division
+import random
 
 size(2048, 1536)
 background(None)
@@ -50,7 +51,6 @@ def subject_color_for(slug):
         u'computing': '#76af5c',
         u'science': '#9c4959',
         u'humanities': '#e5594b',
-        # u'partner-content': '#48a78e',
         u'partner-content': '#54c0a6',
         u'economics-finance-domain': '#e0a057',
         u'test-prep': '#7d5e8d',
@@ -63,13 +63,77 @@ def domain_color_for(slug):
         u'computing': '#689b51',
         u'science': '#93414e',
         u'humanities': '#ce4f43',
-        # u'partner-content': '#48a78e',
         u'partner-content': '#48a78e',
         u'economics-finance-domain': '#c68c45',
         u'test-prep': '#634071',
         u'math': '#1b7489'
     }
     return colors.get(slug, '#304352')
+
+
+def prog_glyph(**kwargs):
+    """draw a progress icon"""
+    domain = random.choice(domain_slugs)
+    content_glyphs = {
+        'video': u'\uf314',
+        'exercise': u'\uf315',
+        'article': u'\uf316',
+        'scratchpad': u'\uf316',
+        'talkie': u'\uf317',
+        'challenge': u'\uf318',
+        'project': u'\uf319',
+    }
+    glyphs = {
+        'half-ring': u'\uf312',
+        'ring': u'\uf10c',
+        'disc': u'\uf313',
+    }
+
+    defaults = {
+        'x': 5,
+        'y': 30,
+        'size': 36,
+        'progress': random.choice([
+            'unstarted', 'started', 'completed']),
+        'domain': random.choice(domain_slugs),
+        'neutral_color': '#cdcdcd',
+        'content_type': random.choice(content_glyphs.keys())
+    }
+    defaults.update(kwargs)
+
+    defaults['domain_color'] = topic_color_for(defaults['domain'])
+    progress = defaults['progress']
+    accent_color = defaults['domain_color']
+    neutral_color = defaults['neutral_color']
+    content_glyph = content_glyphs[defaults['content_type']]
+
+    icon_color = 'white' if progress == 'completed' else defaults['neutral_color']
+    outer_ring_color = accent_color if progress == 'completed' else defaults['neutral_color']
+
+    font('Font Awesome', 'regular', defaults['size'])
+
+    # the outer ring
+    fill(outer_ring_color)
+    text(glyphs['ring'], defaults['x'], defaults['y'], outline=True)
+
+    # the half ring
+    if progress == 'started':
+        fill(accent_color)
+        text(glyphs['half-ring'], defaults['x'], defaults['y'], outline=True)
+
+    # the inner completed disc
+    if progress == 'completed':
+        fill(accent_color)
+        text(glyphs['disc'], defaults['x'], defaults['y'], outline=True)
+
+    # the content icon
+    fill(icon_color)
+    text(content_glyph, defaults['x'], defaults['y'], outline=True)
+
+
+# fill('white')
+# rect(0,0,100,100)
+# prog_glyph()
 
 def stripe_domain(domain):
     #draw progressively darker stripes of a color with subjects in a domain
@@ -219,6 +283,9 @@ def subject_box(title, box_fill, stylename, **kwargs):
 stylesheet("subject", "proxima nova", "regular", 14)
 stylesheet("domain", "proxima nova", "thin", 32)
 stylesheet("subjecthead", "proxima nova", "light", 18)
+stylesheet("tutorial", "proxima nova", "semibold", 14)
+stylesheet("fa", "FontAwesome", "regular", 11)
+
 def horizontal_grid(**kwargs):
     """prints a grid of horizontally scrubbable subjects and domains"""
     y_pos = 0
@@ -361,11 +428,12 @@ def statsy():
     print "%f%%" % (math.ceil(len(quux) / len(blah) * 1000) / 10) , "percent of unruly tutorials"
     print sum(blah) / len(blah)
 
-statsy()
+# statsy()
 # progress(50,50)
 
 def topic_display(**kwargs):
     import icons
+    import pprint
     reload(icons)
 
     domain = kwargs.get("domain", "math")
@@ -377,38 +445,58 @@ def topic_display(**kwargs):
         # the topic heading
         text("%s" % t['title'], 40, heading_y, style="subjecthead")
 
-        ancestors = [subject, domain]
-        icon = icons.get_icon_for(t['slug'], ancestors)
+        ## draw topic icons
+        # ancestors = [subject, domain]
+        # icon = icons.get_icon_for(t['slug'], ancestors)
 
-        with translate(-75, heading_y - 68):
-            with scale(.25):
-                with clip(oval(0,0,128,128)):
-                    image("~/khan/webapp%s" % icon)
+        # with translate(-75, heading_y - 68):
+        #     with scale(.25):
+        #         with clip(oval(0,0,128,128)):
+        #             image("~/khan/webapp%s" % icon)
 
         fill(.6)
+        strokewidth(2)
         desc = text(t['description'], 40, heading_y + 30, style="subject", width=600, leading=1)
         heading_y += measure(desc).height + 20
 
         maxes = [heading_y + 70 + (50 * len(c['children'])) for c in t['children']]
         for j, tut in enumerate(t['children']):
-            tutorial_x = 40 + j * 280
+            tutorial_x = 40 + j * 286.5
             fill(.4)
 
-            strokewidth(1)
-            stroke(.6)
+            strokewidth(3)
+            stroke(.8)
             line(tutorial_x + 10, heading_y+70 - 10, tutorial_x + 10, heading_y + 70 + 50 * (len(tut['children'])-1))
 
             # tutorial title
             fill(subject_color_for(domain))
             text(tut['title'], tutorial_x, heading_y + 30, style="subject", width=240, height=40)
             for k, content in enumerate(tut['children']):
-                fill(.6)
                 content_y = heading_y + 70 + 50 * k
 
-                # content domain_title
-                oval(tutorial_x, content_y-17, 20, 20)
+                the_title = content.get('title')
+                if not the_title:
+                    the_title = content.get('display_name')
+                print the_title, content.get('kind')
+                # prog dot
+                stroke(domain_color_for(domain))
                 fill(domain_color_for(domain))
-                text(content['title'], tutorial_x + 30, content_y, style="subject",
+                mapping = {'Video': u'\uF005', 'Exercise': u'\uF04B'}
+
+                arc(tutorial_x + 10, content_y, 10, range=360, fill=.7, strokewidth=0)
+                r = random.choice([-180, 0, 360])
+                if r:
+                    arc(tutorial_x + 10, content_y, 10, range=r, fill=domain_color_for(domain), strokewidth=0)
+
+                align(CENTER)
+                fill(1)
+                strokewidth(0)
+                text(mapping.get(content['kind']), tutorial_x - 10, content_y+4, 40, 40, outline=True, style="fa", strokewidth=0)
+
+                # content domain_title
+                fill(subject_color_for(domain))
+                align(LEFT)
+                text(the_title, tutorial_x + 30, content_y, style="subject",
                     width=220, height=50, leading=1.1)
 
         max_y = max(maxes)
@@ -437,3 +525,46 @@ def topic_icons(**kwargs):
     return [image('~/khan/webapp%s'%p, plot=None) for p in paths]
 
 # print topic_icons()
+
+def search_results():
+    res = [
+        ["Quadratic inequalities (visual explanation)", "How to solve a quadratic inquality. Visual intuition of what a quadratic inequality lo...",],
+        ["Determinant after row operations", "What happens to the determinant when we perform a row operation"],
+        ["Vector examples", "Visually unerstanding basic vector operations"],
+        ["Passed bike word problem", "Fun algebra word problem involving a train passing a bike."],
+        ["Upper triangular determinant", "Visually unerstanding basic vector operations"]
+    ]
+
+    # background('white')
+    y = 20
+    for r in res:
+        with translate(50, 10):
+            lineheight(.7)
+            fill('#323232')
+            font('proxima nova', 'semibold', 13)
+            title = text(r[0], 0, y, 252, 48)
+
+            glyph_pos = y+8
+            prog_glyph(x=-40, y=glyph_pos, size=28)
+
+            y += measure(title).h
+            y -= 4
+
+
+
+            fill('#989898')
+            lineheight(.95)
+            font('proxima nova', 'regular', 13)
+            desc = text(r[1], 0, y, 252, 48)
+            y += measure(desc).h
+
+            strokewidth(.5)
+            stroke("#989898")
+            strokeoffset = y - 12
+            line(0, strokeoffset, 270, strokeoffset)
+            strokewidth(0)
+
+            y += 20
+            print measure(title)
+
+search_results()
